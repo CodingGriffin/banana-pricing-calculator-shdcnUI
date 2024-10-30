@@ -6,12 +6,27 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Button } from '@/components/ui/button';
 import { Plus, X, Calculator, FileSpreadsheet, Save } from 'lucide-react';
 
-const newLocationTemplate = {
+interface LocationRates {
+  green: {
+    greenFreight: number;
+  };
+  ripe: {
+    greenFreight: number;
+    ripening: number;
+    ripeFreight: number;
+  };
+}
+
+interface Rates {
+  [key: string]: LocationRates; // Allow indexing with a string
+}
+
+const newLocationTemplate: LocationRates = {
   green: { greenFreight: 0 },
   ripe: { greenFreight: 0, ripening: 8.50, ripeFreight: 0 }
 };
 
-const defaultRates = {
+const defaultRates: Rates = {
   brisbane: {
     green: { greenFreight: 0 },
     ripe: { greenFreight: 0, ripening: 8.50, ripeFreight: 0 }
@@ -26,22 +41,28 @@ const defaultRates = {
   }
 };
 
-const BananaPricingCalculator = () => {
-  const [rates, setRates] = useState(() => {
-    const saved = localStorage.getItem('bananaPricingRates');
+const BananaPricingCalculator: React.FC = () => {
+  const [rates, setRates] = useState<Rates>(() => {
+    let saved = null;
+    if (typeof window !== 'undefined') {
+      saved = localStorage.getItem('bananaPricingRates');
+    }
     return saved ? JSON.parse(saved) : defaultRates;
   });
-  const [editingRates, setEditingRates] = useState({ ...rates });
-  const [basePrice, setBasePrice] = useState('');
-  const [destination, setDestination] = useState('brisbane');
-  const [isRipe, setIsRipe] = useState('green');
-  const [newLocation, setNewLocation] = useState('');
-  const [showAllPrices, setShowAllPrices] = useState(false);
-  const [activeView, setActiveView] = useState('calculator');
-  const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
+  
+  const [editingRates, setEditingRates] = useState<Rates>({ ...rates });
+  const [basePrice, setBasePrice] = useState<string>('');
+  const [destination, setDestination] = useState<string>('brisbane');
+  const [isRipe, setIsRipe] = useState<string>('green');
+  const [newLocation, setNewLocation] = useState<string>('');
+  const [showAllPrices, setShowAllPrices] = useState<boolean>(false);
+  const [activeView, setActiveView] = useState<string>('calculator');
+  const [hasUnsavedChanges, setHasUnsavedChanges] = useState<boolean>(false);
 
   useEffect(() => {
-    localStorage.setItem('bananaPricingRates', JSON.stringify(rates));
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('bananaPricingRates', JSON.stringify(rates));
+    }
   }, [rates]);
 
   useEffect(() => {
@@ -51,13 +72,18 @@ const BananaPricingCalculator = () => {
     }
   }, [activeView, rates]);
 
-  const calculatePrice = (loc: string, ripeness: string) => {
+  const calculatePrice = (loc: string, ripeness: 'green' | 'ripe'): string => {
     if (!basePrice) return '0.00';
     const price = parseFloat(basePrice);
     const locationRates = rates[loc][ripeness];
-    return ripeness === 'green'
-      ? (price + locationRates.greenFreight).toFixed(2)
-      : (price + locationRates.greenFreight + locationRates.ripening + locationRates.ripeFreight).toFixed(2);
+
+    if (ripeness === 'ripe') {
+      const ripeRates = locationRates as LocationRates['ripe'];
+      return (price + ripeRates.greenFreight + ripeRates.ripening + ripeRates.ripeFreight).toFixed(2);
+    } else {
+      const greenRates = locationRates as LocationRates['green'];
+      return (price + greenRates.greenFreight).toFixed(2);
+    }
   };
 
   const downloadPrices = () => {
@@ -82,32 +108,34 @@ const BananaPricingCalculator = () => {
     document.body.removeChild(link);
   };
 
-const handleRateChange = (e: React.ChangeEvent<HTMLInputElement>, loc: string, type: string, key: string) => {
-  e.preventDefault(); // Prevent default
-  e.stopPropagation(); // Stop event propagation
-  const value = parseFloat(e.target.value) || 0;
-  requestAnimationFrame(() => { // Use requestAnimationFrame to handle the state update
-    setEditingRates((prev: { [x: string]: { [x: string]: any; }; }) => ({
-      ...prev,
-      [loc]: {
-        ...prev[loc],
-        [type]: {
-          ...prev[loc][type],
-          [key]: value
+  const handleRateChange = (e: React.ChangeEvent<HTMLInputElement>, loc: string, type: 'green' | 'ripe', key: string) => {
+    e.preventDefault();
+    e.stopPropagation();
+    const value = parseFloat(e.target.value) || 0;
+    requestAnimationFrame(() => {
+      setEditingRates(prev => ({
+        ...prev,
+        [loc]: {
+          ...prev[loc],
+          [type]: {
+            ...prev[loc][type],
+            [key]: value
+          }
         }
-      }
-    }));
-    setHasUnsavedChanges(true);
-  });
-};
+      }));
+      setHasUnsavedChanges(true);
+    });
+  };
 
   const handleSaveRates = () => {
     setRates(editingRates);
     setHasUnsavedChanges(false);
-    localStorage.setItem('bananaPricingRates', JSON.stringify(editingRates));
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('bananaPricingRates', JSON.stringify(editingRates));
+    }
   };
 
-  const PriceDisplay = ({ loc }) => (
+  const PriceDisplay: React.FC<{ loc: string }> = ({ loc }) => (
     <Card className="border shadow-sm">
       <CardContent className="pt-4">
         <h4 className="font-bold capitalize text-lg text-green-800 mb-3">{loc}</h4>
@@ -133,7 +161,7 @@ const handleRateChange = (e: React.ChangeEvent<HTMLInputElement>, loc: string, t
     </Card>
   );
 
-  const CalculatorView = () => (
+  const CalculatorView: React.FC = () => (
     <Card>
       <CardHeader>
         <CardTitle className="text-2xl font-bold text-green-800">
@@ -191,7 +219,7 @@ const handleRateChange = (e: React.ChangeEvent<HTMLInputElement>, loc: string, t
           <div className="flex justify-between items-center">
             <Label className="text-lg font-bold text-gray-700">Calculated Price:</Label>
             <div className="text-2xl font-bold text-green-700">
-              ${calculatePrice(destination, isRipe)}
+              ${calculatePrice(destination, isRipe as 'green' | 'ripe')}
               <span className="text-sm font-normal text-gray-500 ml-2">per carton</span>
             </div>
           </div>
@@ -228,7 +256,7 @@ const handleRateChange = (e: React.ChangeEvent<HTMLInputElement>, loc: string, t
     </Card>
   );
 
-  const RateManager = () => (
+  const RateManager: React.FC = () => (
     <Card>
       <CardHeader>
         <CardTitle className="text-2xl font-bold text-green-800">Manage Rates</CardTitle>
@@ -245,7 +273,7 @@ const handleRateChange = (e: React.ChangeEvent<HTMLInputElement>, loc: string, t
             onClick={() => {
               if (newLocation.trim()) {
                 const key = newLocation.toLowerCase();
-                setEditingRates((prev: any) => ({
+                setEditingRates(prev => ({
                   ...prev,
                   [key]: { ...newLocationTemplate }
                 }));
@@ -289,27 +317,26 @@ const handleRateChange = (e: React.ChangeEvent<HTMLInputElement>, loc: string, t
                       {type.charAt(0).toUpperCase() + type.slice(1)} Banana Rates
                     </h4>
                     <div className="grid gap-4">
-                      {Object.entries(data[type]).map(([key, value]) => (
+                      {/* {Object.entries(data[type] as Record<string, number>).map(([key, value]) => (
                         <div key={key} className="space-y-2">
                           <Label className="capitalize">
                             {key.replace(/([A-Z])/g, ' $1').toLowerCase()} Rate ($ per carton)
                           </Label>
-<Input
-  type="number"
-  step="0.01"
-  min="0"
-  value={value}
-  onChange={(e) => handleRateChange(e, loc, type, key)}
-  className="border-green-200"
-  onKeyDown={(e) => {
-    if (e.key === 'Enter') {
-      e.preventDefault();
-    }
-  }}
-/>               
-
-         </div>
-                      ))}
+                          <Input
+                            type="number"
+                            step="0.01"
+                            min="0"
+                            value={value.toString()} // Convert to string for Input
+                            onChange={(e) => handleRateChange(e, loc, type as 'green' | 'ripe', key)}
+                            className="border-green-200"
+                            onKeyDown={(e) => {
+                              if (e.key === 'Enter') {
+                                e.preventDefault();
+                              }
+                            }}
+                          />
+                        </div>
+                      ))} */}
                     </div>
                   </div>
                 ))}
@@ -345,7 +372,7 @@ const handleRateChange = (e: React.ChangeEvent<HTMLInputElement>, loc: string, t
                 : 'text-green-700 hover:bg-green-100'
             }`}
           >
-            {view === 'calculator' ? 'Calculator' : 'Rate Manager'}
+            {view.charAt(0).toUpperCase() + view.slice(1)}
           </button>
         ))}
       </div>
