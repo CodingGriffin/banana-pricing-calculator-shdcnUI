@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
@@ -58,6 +58,13 @@ const BananaPricingCalculator: React.FC = () => {
   const [showAllPrices, setShowAllPrices] = useState<boolean>(false);
   const [activeView, setActiveView] = useState<string>('calculator');
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState<boolean>(false);
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (inputRef.current) {
+      inputRef.current.focus();
+    }
+  }, []);
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
@@ -161,203 +168,229 @@ const BananaPricingCalculator: React.FC = () => {
     </Card>
   );
 
-  const CalculatorView: React.FC = () => (
-    <Card>
-      <CardHeader>
-        <CardTitle className="text-2xl font-bold text-green-800">
-          Banana Pricing Calculator
-          <span className="text-base font-normal text-gray-500 ml-2">(15kg Carton)</span>
-        </CardTitle>
-      </CardHeader>
-      <CardContent className="space-y-6">
-        <div className="space-y-2">
-          <Label htmlFor="basePrice" className="font-bold text-gray-700">
-            Base Price ($ per 15kg carton in Brisbane - Green)
-          </Label>
-          <Input
-            id="basePrice"
-            type="number"
-            step="0.01"
-            min="0"
-            value={basePrice}
-            onChange={(e) => setBasePrice(e.target.value)}
-            placeholder="Enter base price"
-            className="w-full border-green-200 focus:border-green-500 focus:ring-green-500"
-          />
-        </div>
+  const CalculatorView: React.FC = () => {
+    const inputRef = useRef<HTMLInputElement>(null);
 
-        <div className="space-y-2">
-          <Label htmlFor="destination" className="font-bold text-gray-700">Destination</Label>
-          <Select value={destination} onValueChange={setDestination}>
-            <SelectTrigger className="w-full border-green-200">
-              <SelectValue placeholder="Select destination" />
-            </SelectTrigger>
-            <SelectContent>
-              {Object.keys(rates).map(loc => (
-                <SelectItem key={loc} value={loc}>
-                  {loc.charAt(0).toUpperCase() + loc.slice(1)}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
+    useEffect(() => {
+      if (inputRef.current) {
+        inputRef.current.focus();
+      }
+    }, []);
 
-        <div className="space-y-2">
-          <Label htmlFor="ripeness" className="font-bold text-gray-700">Ripeness State</Label>
-          <Select value={isRipe} onValueChange={setIsRipe}>
-            <SelectTrigger className="w-full border-green-200">
-              <SelectValue placeholder="Select ripeness" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="green">Green</SelectItem>
-              <SelectItem value="ripe">Ripe</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
-
-        <div className="pt-4 border-t border-green-100">
-          <div className="flex justify-between items-center">
-            <Label className="text-lg font-bold text-gray-700">Calculated Price:</Label>
-            <div className="text-2xl font-bold text-green-700">
-              ${calculatePrice(destination, isRipe as 'green' | 'ripe')}
-              <span className="text-sm font-normal text-gray-500 ml-2">per carton</span>
-            </div>
+    return (
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-2xl font-bold text-green-800">
+            Banana Pricing Calculator
+            <span className="text-base font-normal text-gray-500 ml-2">(15kg Carton)</span>
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-6">
+          <div className="space-y-2">
+            <Label htmlFor="basePrice" className="font-bold text-gray-700">
+              Base Price ($ per 15kg carton in Brisbane - Green)
+            </Label>
+            <Input
+              ref={inputRef}
+              id="basePrice"
+              type="number"
+              step="0.01"
+              min="0"
+              value={basePrice}
+              onChange={(e) => setBasePrice(e.target.value)}
+              placeholder="Enter base price"
+              className="w-full border-green-200 focus:border-green-500 focus:ring-green-500"
+            />
           </div>
-        </div>
 
-        <Button 
-          onClick={() => setShowAllPrices(!showAllPrices)}
-          className="w-full bg-green-700 hover:bg-green-800 text-white"
-        >
-          <Calculator className="mr-2 h-4 w-4" />
-          {showAllPrices ? 'Hide All Prices' : 'Calculate All Prices'}
-        </Button>
-
-        {showAllPrices && (
-          <div className="space-y-4">
-            <div className="flex justify-between items-center border-b pb-2">
-              <h3 className="font-bold text-lg text-green-800">All Destination Prices</h3>
-              <Button 
-                onClick={downloadPrices}
-                className="bg-green-700 hover:bg-green-800 text-white"
-              >
-                <FileSpreadsheet className="mr-2 h-4 w-4" />
-                Download CSV
-              </Button>
-            </div>
-            <div className="grid gap-4">
-              {Object.keys(rates).map(loc => (
-                <PriceDisplay key={loc} loc={loc} />
-              ))}
-            </div>
-          </div>
-        )}
-      </CardContent>
-    </Card>
-  );
-
-  const RateManager: React.FC = () => (
-    <Card>
-      <CardHeader>
-        <CardTitle className="text-2xl font-bold text-green-800">Manage Rates</CardTitle>
-      </CardHeader>
-      <CardContent className="space-y-6">
-        <div className="flex gap-2">
-          <Input
-            placeholder="Enter new location name"
-            value={newLocation}
-            onChange={(e) => setNewLocation(e.target.value)}
-            className="flex-1 border-green-200"
-          />
-          <Button 
-            onClick={() => {
-              if (newLocation.trim()) {
-                const key = newLocation.toLowerCase();
-                setEditingRates(prev => ({
-                  ...prev,
-                  [key]: { ...newLocationTemplate }
-                }));
-                setNewLocation('');
-                setHasUnsavedChanges(true);
-              }
-            }}
-            className="w-24 bg-green-700 hover:bg-green-800"
-          >
-            <Plus className="mr-2 h-4 w-4" /> Add
-          </Button>
-        </div>
-
-        <div className="space-y-6">
-          {Object.entries(editingRates).map(([loc, data]) => (
-            <Card key={loc} className="border-2 border-green-100">
-              <CardContent className="pt-6 space-y-4">
-                <div className="flex justify-between items-center pb-2 border-b border-green-100">
-                  <h3 className="font-bold capitalize text-lg text-green-800">{loc}</h3>
-                  <Button 
-                    variant="ghost"
-                    onClick={() => {
-                      const newRates = { ...editingRates };
-                      delete newRates[loc];
-                      setEditingRates(newRates);
-                      setHasUnsavedChanges(true);
-                    }}
-                    className="text-red-500 hover:text-red-700 hover:bg-red-50"
-                  >
-                    <X className="h-4 w-4" />
-                  </Button>
-                </div>
-
-                {['green', 'ripe'].map((type) => (
-                  <div key={type} className={`space-y-4 p-4 rounded-lg ${
-                    type === 'green' ? 'bg-green-50/50' : 'bg-yellow-50/50'
-                  }`}>
-                    <h4 className={`font-medium ${
-                      type === 'green' ? 'text-green-700' : 'text-yellow-700'
-                    }`}>
-                      {type.charAt(0).toUpperCase() + type.slice(1)} Banana Rates
-                    </h4>
-                    <div className="grid gap-4">
-                      {/* {Object.entries(data[type] as Record<string, number>).map(([key, value]) => (
-                        <div key={key} className="space-y-2">
-                          <Label className="capitalize">
-                            {key.replace(/([A-Z])/g, ' $1').toLowerCase()} Rate ($ per carton)
-                          </Label>
-                          <Input
-                            type="number"
-                            step="0.01"
-                            min="0"
-                            value={value.toString()} // Convert to string for Input
-                            onChange={(e) => handleRateChange(e, loc, type as 'green' | 'ripe', key)}
-                            className="border-green-200"
-                            onKeyDown={(e) => {
-                              if (e.key === 'Enter') {
-                                e.preventDefault();
-                              }
-                            }}
-                          />
-                        </div>
-                      ))} */}
-                    </div>
-                  </div>
+          <div className="space-y-2">
+            <Label htmlFor="destination" className="font-bold text-gray-700">Destination</Label>
+            <Select value={destination} onValueChange={setDestination}>
+              <SelectTrigger className="w-full border-green-200">
+                <SelectValue placeholder="Select destination" />
+              </SelectTrigger>
+              <SelectContent>
+                {Object.keys(rates).map(loc => (
+                  <SelectItem key={loc} value={loc}>
+                    {loc.charAt(0).toUpperCase() + loc.slice(1)}
+                  </SelectItem>
                 ))}
-              </CardContent>
-            </Card>
-          ))}
-        </div>
+              </SelectContent>
+            </Select>
+          </div>
 
-        <div className="pt-6 border-t border-green-100">
+          <div className="space-y-2">
+            <Label htmlFor="ripeness" className="font-bold text-gray-700">Ripeness State</Label>
+            <Select value={isRipe} onValueChange={setIsRipe}>
+              <SelectTrigger className="w-full border-green-200">
+                <SelectValue placeholder="Select ripeness" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="green">Green</SelectItem>
+                <SelectItem value="ripe">Ripe</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div className="pt-4 border-t border-green-100">
+            <div className="flex justify-between items-center">
+              <Label className="text-lg font-bold text-gray-700">Calculated Price:</Label>
+              <div className="text-2xl font-bold text-green-700">
+                ${calculatePrice(destination, isRipe as 'green' | 'ripe')}
+                <span className="text-sm font-normal text-gray-500 ml-2">per carton</span>
+              </div>
+            </div>
+          </div>
+
           <Button 
-            onClick={handleSaveRates}
+            onClick={() => setShowAllPrices(!showAllPrices)}
             className="w-full bg-green-700 hover:bg-green-800 text-white"
-            disabled={!hasUnsavedChanges}
           >
-            <Save className="mr-2 h-4 w-4" />
-            Save Changes
+            <Calculator className="mr-2 h-4 w-4" />
+            {showAllPrices ? 'Hide All Prices' : 'Calculate All Prices'}
           </Button>
-        </div>
-      </CardContent>
-    </Card>
-  );
+
+          {showAllPrices && (
+            <div className="space-y-4">
+              <div className="flex justify-between items-center border-b pb-2">
+                <h3 className="font-bold text-lg text-green-800">All Destination Prices</h3>
+                <Button 
+                  onClick={downloadPrices}
+                  className="bg-green-700 hover:bg-green-800 text-white"
+                >
+                  <FileSpreadsheet className="mr-2 h-4 w-4" />
+                  Download CSV
+                </Button>
+              </div>
+              <div className="grid gap-4">
+                {Object.keys(rates).map(loc => (
+                  <PriceDisplay key={loc} loc={loc} />
+                ))}
+              </div>
+            </div>
+          )}
+        </CardContent>
+      </Card>
+    );
+}
+
+  const RateManager: React.FC = () => {
+    const inputRef = useRef<HTMLInputElement>(null);
+
+    useEffect(() => {
+      if (inputRef.current) {
+        inputRef.current.focus();
+      }
+    }, []);
+    
+    return (
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-2xl font-bold text-green-800">Manage Rates</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-6">
+          <div className="flex gap-2">
+            <Input
+              ref={inputRef}
+              placeholder="Enter new location name"
+              value={newLocation}
+              onChange={(e) => setNewLocation(e.target.value)}
+              className="flex-1 border-green-200"
+            />
+            <Button 
+              onClick={() => {
+                if (newLocation.trim()) {
+                  const key = newLocation.toLowerCase();
+                  setEditingRates(prev => ({
+                    ...prev,
+                    [key]: { ...newLocationTemplate }
+                  }));
+                  setNewLocation('');
+                  setHasUnsavedChanges(true);
+                }
+              }}
+              className="w-24 bg-green-700 hover:bg-green-800"
+            >
+              <Plus className="mr-2 h-4 w-4" /> Add
+            </Button>
+          </div>
+
+          <div className="space-y-6">
+            {Object.entries(editingRates).map(([loc, data]) => (
+              <Card key={loc} className="border-2 border-green-100">
+                <CardContent className="pt-6 space-y-4">
+                  <div className="flex justify-between items-center pb-2 border-b border-green-100">
+                    <h3 className="font-bold capitalize text-lg text-green-800">{loc}</h3>
+                    <Button 
+                      variant="ghost"
+                      onClick={() => {
+                        const newRates = { ...editingRates };
+                        delete newRates[loc];
+                        setEditingRates(newRates);
+                        setHasUnsavedChanges(true);
+                      }}
+                      className="text-red-500 hover:text-red-700 hover:bg-red-50"
+                    >
+                      <X className="h-4 w-4" />
+                    </Button>
+                  </div>
+
+                  {['green', 'ripe'].map((type) => {
+                    const key: string = type;
+
+                    return (
+                    <div key={type} className={`space-y-4 p-4 rounded-lg ${
+                      type === 'green' ? 'bg-green-50/50' : 'bg-yellow-50/50'
+                    }`}>
+                      <h4 className={`font-medium ${
+                        type === 'green' ? 'text-green-700' : 'text-yellow-700'
+                      }`}>
+                        {type.charAt(0).toUpperCase() + type.slice(1)} Banana Rates
+                      </h4>
+                      <div className="grid gap-4">
+                        {Object.entries(data[key as keyof LocationRates] as Record<string, number>).map(([key, value]) => (
+                          <div key={key} className="space-y-2">
+                            <Label className="capitalize">
+                              {key.replace(/([A-Z])/g, ' $1').toLowerCase()} Rate ($ per carton)
+                            </Label>
+                            <Input
+                              // ref={inputRef}
+                              type="number"
+                              step="0.01"
+                              min="0"
+                              value={value.toString()} // Convert to string for Input
+                              onChange={(e) => handleRateChange(e, loc, type as 'green' | 'ripe', key)}
+                              className="border-green-200"
+                              onKeyDown={(e) => {
+                                if (e.key === 'Enter') {
+                                  e.preventDefault();
+                                }
+                              }}
+                            />
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )})}
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+
+          <div className="pt-6 border-t border-green-100">
+            <Button 
+              onClick={handleSaveRates}
+              className="w-full bg-green-700 hover:bg-green-800 text-white"
+              disabled={!hasUnsavedChanges}
+            >
+              <Save className="mr-2 h-4 w-4" />
+              Save Changes
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
 
   return (
     <div className="flex min-h-screen bg-white">
