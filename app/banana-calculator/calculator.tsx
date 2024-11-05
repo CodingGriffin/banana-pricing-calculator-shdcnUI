@@ -4,7 +4,8 @@ import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
-import RateManager from './RateManager'
+import RateManager from './RateManager';
+import AnalysisManager from './AnalysisManager';
 import { Calculator, FileSpreadsheet } from 'lucide-react';
 
 interface LocationRates {
@@ -227,7 +228,7 @@ const BananaPricingCalculator: React.FC = () => {
   return (
     <div className="flex min-h-screen bg-white">
       <div className="w-64 bg-green-50 border-r border-green-100 p-4 space-y-2 fixed h-full">
-        {['calculator', 'rates'].map((view) => (
+        {['calculator', 'rates', 'analysis'].map((view) => (
           <button
             key={view}
             onClick={() => setActiveView(view)}
@@ -242,7 +243,7 @@ const BananaPricingCalculator: React.FC = () => {
         ))}
       </div>
       <div className="flex-1 p-6 ml-64">
-        {activeView === 'calculator' ? <CalculatorView /> : <RateManager rates={rates} setRates={setRates} />}
+        {activeView === 'calculator' ? <CalculatorView /> : (activeView === 'rates' ? <RateManager rates={rates} setRates={setRates} /> : <AnalysisManager rates={rates} />)}
       </div>
     </div>
   );

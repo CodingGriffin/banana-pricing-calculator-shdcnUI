@@ -6,29 +6,29 @@ import { Button } from '@/components/ui/button';
 import { Plus, X, Save } from 'lucide-react';
 
 interface Rates {
-    [key: string]: LocationRates; // Allow indexing with a string
-  }
-  interface LocationRates {
-    green: {
-      greenFreight: number;
-    };
-    ripe: {
-      greenFreight: number;
-      ripening: number;
-      ripeFreight: number;
-    };
-  }
-  
-  const newLocationTemplate: LocationRates = {
-    green: { greenFreight: 0 },
-    ripe: { greenFreight: 0, ripening: 8.50, ripeFreight: 0 }
+  [key: string]: LocationRates; // Allow indexing with a string
+}
+interface LocationRates {
+  green: {
+    greenFreight: number;
   };
+  ripe: {
+    greenFreight: number;
+    ripening: number;
+    ripeFreight: number;
+  };
+}
   
+const newLocationTemplate: LocationRates = {
+  green: { greenFreight: 0 },
+  ripe: { greenFreight: 0, ripening: 8.50, ripeFreight: 0 }
+};
   
-  interface RateManagerProps {
-    rates : any,
-    setRates : (data: any) => void
-  } 
+interface RateManagerProps {
+  rates : any,
+  setRates : (data: any) => void
+}
+
 const RateManager: React.FC<RateManagerProps> = ({rates, setRates}) => {
     
     const inputRef = useRef<HTMLInputElement>(null);
