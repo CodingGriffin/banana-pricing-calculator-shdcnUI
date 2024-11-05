@@ -53,24 +53,20 @@ const AnalysisManager: React.FC<RateManagerProps> = ({ rates }) => {
         <div className="grid grid-cols-2 gap-4">
           <div className="p-3 bg-green-50 rounded-lg border border-green-100">
             <div className="text-sm text-green-700 font-bold mb-1">Green</div>
-						<div className="grid grid-cols-2">
-							<div>
-								{/* <div className="w-full max-w-sm min-w-[200px]">
-									<div className="relative">
-										<input
-											className="peer w-full bg-transparent placeholder:text-slate-400 text-slate-700 text-sm border border-slate-200 rounded-md px-3 py-2 transition duration-300 ease focus:outline-none focus:border-slate-400 hover:border-slate-300 shadow-sm focus:shadow"
-										/>
-										<label className="absolute cursor-text bg-green-50 px-1 left-2.5 top-2.5 text-slate-400 text-sm transition-all transform origin-left peer-focus:-top-2 peer-focus:left-2.5 peer-focus:text-xs peer-focus:text-slate-400 peer-focus:scale-90">
-											Type Here...
-										</label>
-									</div>
-								</div> */}
+						<div className="grid grid-cols-2 mt-4">
+							<div className="relative border border-green-500 p-3">
+								<label className="absolute cursor-text bg-green-50 px-1 left-2.5 -top-2.5 text-black text-slate-400 text-sm transition-all transform origin-left">
+									Managed Price
+								</label>
 								<div className="text-xl font-bold text-green-900">${calculateExpectedPrice(loc, 'green')}</div>
 								<div className="text-xs text-gray-600 mt-1">
 									+ ${rates[loc].green.greenFreight.toFixed(2)} freight
 								</div>
 							</div>
-							<div>
+							<div className="relative border border-red-500 p-3">
+								<label className="absolute cursor-text bg-green-50 px-1 left-2.5 -top-2.5 text-black text-slate-400 text-sm transition-all transform origin-left">
+									Real Price
+								</label>
 								<div className="text-xl font-bold text-green-900">${calculateExpectedPrice(loc, 'green')}</div>
 								<div className="text-xs text-gray-600 mt-1">
 									+ ${rates[loc].green.greenFreight.toFixed(2)} freight
@@ -80,8 +76,11 @@ const AnalysisManager: React.FC<RateManagerProps> = ({ rates }) => {
           </div>
           <div className="p-3 bg-yellow-50 rounded-lg border border-yellow-100">
             <div className="text-sm text-yellow-700 font-bold mb-1">Ripe</div>
-						<div className="grid grid-cols-2">
-							<div>
+						<div className="grid grid-cols-2 mt-4">
+							<div className="relative border border-yellow-500 p-3">
+								<label className="absolute cursor-text bg-yellow-50 px-1 left-2.5 -top-2.5 text-black text-slate-400 text-sm transition-all transform origin-left">
+									Managed Price
+								</label>
 								<div className="text-xl font-bold text-yellow-900">${calculateExpectedPrice(loc, 'ripe')}</div>
 								<div className="text-xs text-gray-600 mt-1">
 									+ ${rates[loc].ripe.greenFreight.toFixed(2)} green freight<br />
@@ -89,7 +88,10 @@ const AnalysisManager: React.FC<RateManagerProps> = ({ rates }) => {
 									+ ${rates[loc].ripe.ripeFreight.toFixed(2)} ripe freight
 								</div>
 							</div>
-							<div>
+							<div className="relative border border-red-500 p-3">
+								<label className="absolute cursor-text bg-yellow-50 px-1 left-2.5 -top-2.5 text-black text-slate-400 text-sm transition-all transform origin-left">
+									Real Price
+								</label>
 								<div className="text-xl font-bold text-yellow-900">${calculateExpectedPrice(loc, 'ripe')}</div>
 								<div className="text-xs text-gray-600 mt-1">
 									+ ${rates[loc].ripe.greenFreight.toFixed(2)} green freight<br />
