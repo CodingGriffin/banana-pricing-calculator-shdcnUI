@@ -4,7 +4,7 @@ import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Plus, X, Save } from 'lucide-react';
-import { Calculator, FileSpreadsheet } from 'lucide-react';
+import { Calculator, FileSpreadsheet, ChevronRight, ChevronLeft } from 'lucide-react';
 
 interface Rates {
   [key: string]: LocationRates; // Allow indexing with a string
@@ -53,7 +53,7 @@ const AnalysisManager: React.FC<RateManagerProps> = ({ rates }) => {
         <div className="grid grid-cols-2 gap-4">
           <div className="p-3 bg-green-50 rounded-lg border border-green-100">
             <div className="text-sm text-green-700 font-bold mb-1">Green</div>
-						<div className="grid grid-cols-2 mt-4">
+						<div className="grid grid-cols-3 mt-4 h-[75%]">
 							<div className="relative border border-green-500 p-3">
 								<label className="absolute cursor-text bg-green-50 px-1 left-2.5 -top-2.5 text-black text-sm transition-all transform origin-left">
 									Managed Price
@@ -62,6 +62,10 @@ const AnalysisManager: React.FC<RateManagerProps> = ({ rates }) => {
 								<div className="text-xs text-gray-600 mt-1">
 									+ ${rates[loc].green.greenFreight.toFixed(2)} freight
 								</div>
+							</div>
+							<div className='flex flex-col justify-center items-center'>
+									<ChevronRight size={50} color='red' />
+									<div className="text-md text-red">- $0.00</div>
 							</div>
 							<div className="relative border border-red-500 p-3">
 								<label className="absolute cursor-text bg-green-50 px-1 left-2.5 -top-2.5 text-black text-sm transition-all transform origin-left">
@@ -76,7 +80,7 @@ const AnalysisManager: React.FC<RateManagerProps> = ({ rates }) => {
           </div>
           <div className="p-3 bg-yellow-50 rounded-lg border border-yellow-100">
             <div className="text-sm text-yellow-700 font-bold mb-1">Ripe</div>
-						<div className="grid grid-cols-2 mt-4">
+						<div className="grid grid-cols-3 mt-4 h-[75%]">
 							<div className="relative border border-yellow-500 p-3">
 								<label className="absolute cursor-text bg-yellow-50 px-1 left-2.5 -top-2.5 text-black text-sm transition-all transform origin-left">
 									Managed Price
@@ -87,6 +91,10 @@ const AnalysisManager: React.FC<RateManagerProps> = ({ rates }) => {
 									+ ${rates[loc].ripe.ripening.toFixed(2)} ripening<br />
 									+ ${rates[loc].ripe.ripeFreight.toFixed(2)} ripe freight
 								</div>
+							</div>
+							<div className='flex flex-col justify-center items-center'>
+								<ChevronLeft size={50} color='green' />
+								<label className="text-green">+ $0.00</label>
 							</div>
 							<div className="relative border border-red-500 p-3">
 								<label className="absolute cursor-text bg-yellow-50 px-1 left-2.5 -top-2.5 text-black text-sm transition-all transform origin-left">
