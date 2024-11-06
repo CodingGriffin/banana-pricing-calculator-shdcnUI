@@ -8,19 +8,9 @@ import RateManager from './RateManager';
 import AnalysisManager from './AnalysisManager';
 import { Calculator, FileSpreadsheet } from 'lucide-react';
 
-interface LocationRates {
-  green: {
-    greenFreight: number;
-  };
-  ripe: {
-    greenFreight: number;
-    ripening: number;
-    ripeFreight: number;
-  };
-}
-interface Rates {
-  [key: string]: LocationRates; // Allow indexing with a string
-}
+import CalculatedPriceDisplay from './CalculatedPriceDisplay';
+import { LocationRates, Rates } from './Interfaces';
+
 const defaultRates: Rates = {
   brisbane: {
     green: { greenFreight: 0 },
@@ -48,13 +38,7 @@ const BananaPricingCalculator: React.FC = () => {
   const [isRipe, setIsRipe] = useState<string>('green');
   const [showAllPrices, setShowAllPrices] = useState<boolean>(false);
   const [activeView, setActiveView] = useState<string>('calculator');
-  const inputRef = useRef<HTMLInputElement>(null);
 
-  useEffect(() => {
-    if (inputRef.current) {
-      inputRef.current.focus();
-    }
-  }, []);
   const calculatePrice = (loc: string, ripeness: 'green' | 'ripe'): string => {
     if (!basePrice) return '0.00';
     const price = parseFloat(basePrice);
@@ -90,32 +74,6 @@ const BananaPricingCalculator: React.FC = () => {
     link.click();
     document.body.removeChild(link);
   };
-
-  const PriceDisplay: React.FC<{ loc: string }> = ({ loc }) => (
-    <Card className="border shadow-sm">
-      <CardContent className="pt-4">
-        <h4 className="font-bold capitalize text-lg text-green-800 mb-3">{loc}</h4>
-        <div className="grid grid-cols-2 gap-4">
-          <div className="p-3 bg-green-50 rounded-lg border border-green-100">
-            <div className="text-sm text-green-700 font-bold mb-1">Green</div>
-            <div className="text-xl font-bold text-green-900">${calculatePrice(loc, 'green')}</div>
-            <div className="text-xs text-gray-600 mt-1">
-              + ${rates[loc].green.greenFreight.toFixed(2)} freight
-            </div>
-          </div>
-          <div className="p-3 bg-yellow-50 rounded-lg border border-yellow-100">
-            <div className="text-sm text-yellow-700 font-bold mb-1">Ripe</div>
-            <div className="text-xl font-bold text-yellow-900">${calculatePrice(loc, 'ripe')}</div>
-            <div className="text-xs text-gray-600 mt-1">
-              + ${rates[loc].ripe.greenFreight.toFixed(2)} green freight<br />
-              + ${rates[loc].ripe.ripening.toFixed(2)} ripening<br />
-              + ${rates[loc].ripe.ripeFreight.toFixed(2)} ripe freight
-            </div>
-          </div>
-        </div>
-      </CardContent>
-    </Card>
-  );
 
   const CalculatorView: React.FC = () => {
     const inputRef = useRef<HTMLInputElement>(null);
@@ -213,7 +171,7 @@ const BananaPricingCalculator: React.FC = () => {
               </div>
               <div className="grid gap-4">
                 {Object.keys(rates).map(loc => (
-                  <PriceDisplay key={loc} loc={loc} />
+                  <CalculatedPriceDisplay key={loc} loc={loc} rates={rates} basePrice={basePrice} />
                 ))}
               </div>
             </div>
@@ -243,7 +201,7 @@ const BananaPricingCalculator: React.FC = () => {
         ))}
       </div>
       <div className="flex-1 p-6 ml-64">
-        {activeView === 'calculator' ? <CalculatorView /> : (activeView === 'rates' ? <RateManager rates={rates} setRates={setRates} /> : <AnalysisManager rates={rates} />)}
+        {activeView === 'calculator' ? <CalculatorView /> : (activeView === 'rates' ? <RateManager rates={rates} setRates={setRates} /> : <AnalysisManager rates={rates}  setRates={setRates} />)}
       </div>
     </div>
   );
