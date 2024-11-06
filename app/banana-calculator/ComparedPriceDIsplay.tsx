@@ -4,10 +4,7 @@ import { ChevronRight, ChevronLeft } from 'lucide-react';
 
 import { PriceManagerProps, LocationRates } from './Interfaces';
 
-const ComparedPriceDIsplay: React.FC<PriceManagerProps> = ({ rates, loc }) => {
-	
-  const [basePrice, setBasePrice] = useState<string>('');
-
+const ComparedPriceDIsplay: React.FC<PriceManagerProps> = ({ rates, loc, basePrice }) => {
   const calculateExpectedPrice = (loc: string, ripeness: 'green' | 'ripe'): string => {
     if (!basePrice) return '0.00';
     const price = parseFloat(basePrice);

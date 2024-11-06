@@ -10,6 +10,9 @@ import { LocationRates, Rates, RateManagerProps } from './Interfaces';
 
 const AnalysisManager: React.FC<RateManagerProps> = ({ rates }) => {
 	const [currentRates, setCurrentRates] = useState<Rates>({ ...rates });
+  const [basePrice, setBasePrice] = useState<string>('');
+	const inputRef = useRef<HTMLInputElement>(null);
+  const [showAnalysisPrices, setShowAnalysisPrices] = useState<boolean>(false);
 
 	return <Card>
 		<CardHeader>
@@ -24,13 +27,13 @@ const AnalysisManager: React.FC<RateManagerProps> = ({ rates }) => {
 					Base Price for Analysis
 				</Label>
 				<Input
-					// ref={inputRef}
+					ref={inputRef}
 					id="basePrice"
 					type="number"
 					step="0.01"
 					min="0"
-					// value={basePrice}
-					// onChange={(e) => setBasePrice(e.target.value)}
+					value={basePrice}
+					onChange={(e) => setBasePrice(e.target.value)}
 					placeholder="Enter base price"
 					className="w-full border-green-200 focus:border-green-500 focus:ring-green-500"
 				/>
@@ -89,18 +92,22 @@ const AnalysisManager: React.FC<RateManagerProps> = ({ rates }) => {
 				))}
 			</div>
 			<Button 
-				// onClick={() => setShowAllPrices(!showAllPrices)}
+				onClick={() => setShowAnalysisPrices(!showAnalysisPrices)}
 				className="w-full bg-green-700 hover:bg-green-800 text-white"
 			>
 				<Calculator className="mr-2 h-4 w-4" />
-				{'Analysis All Prices For Each Location'}
+				{showAnalysisPrices ? 'Hide Analysis' : 'Analysis All Prices For Each Location'}
 			</Button>
-			<h3 className="font-bold text-lg text-green-800">Analysing For Each Location Based Price Per 15kg</h3>
-			<div className="grid gap-4">
-				{Object.keys(rates).map(loc => (
-					<ComparedPriceDIsplay key={loc} loc={loc} rates={rates} basePrice='' />
-				))}
-			</div>
+			{showAnalysisPrices &&
+			<>
+				<h3 className="font-bold text-lg text-green-800">Analysing For Each Location Based Price Per 15kg</h3>
+				<div className="grid gap-4">
+					{Object.keys(rates).map(loc => (
+						<ComparedPriceDIsplay key={loc} loc={loc} rates={rates} basePrice={basePrice} />
+					))}
+				</div>
+			</>
+			}
 		</CardContent>
 	</Card>;
 }
