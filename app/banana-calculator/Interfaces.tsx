@@ -22,3 +22,9 @@ export interface PriceManagerProps {
 	loc : string,
 	basePrice: string,
 }
+export interface CurrentPriceManagerProps {
+	rates : any,
+	loc : string,
+	basePrice: string,
+	currentRates : any,
+}

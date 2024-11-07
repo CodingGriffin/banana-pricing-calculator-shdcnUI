@@ -2,13 +2,27 @@ import { useState } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { ChevronRight, ChevronLeft } from 'lucide-react';
 
-import { PriceManagerProps, LocationRates } from './Interfaces';
+import { CurrentPriceManagerProps, LocationRates } from './Interfaces';
 
-const ComparedPriceDIsplay: React.FC<PriceManagerProps> = ({ rates, loc, basePrice }) => {
+const ComparedPriceDIsplay: React.FC<CurrentPriceManagerProps> = ({ rates, loc, basePrice, currentRates }) => {
   const calculateExpectedPrice = (loc: string, ripeness: 'green' | 'ripe'): string => {
     if (!basePrice) return '0.00';
     const price = parseFloat(basePrice);
     const locationRates = rates[loc][ripeness];
+
+    if (ripeness === 'ripe') {
+      const ripeRates = locationRates as LocationRates['ripe'];
+      return (price + ripeRates.greenFreight + ripeRates.ripening + ripeRates.ripeFreight).toFixed(2);
+    } else {
+      const greenRates = locationRates as LocationRates['green'];
+      return (price + greenRates.greenFreight).toFixed(2);
+    }
+  };
+
+  const calculateCurrentPrice = (loc: string, ripeness: 'green' | 'ripe'): string => {
+    if (!basePrice) return '0.00';
+    const price = parseFloat(basePrice);
+    const locationRates = currentRates[loc][ripeness];
 
     if (ripeness === 'ripe') {
       const ripeRates = locationRates as LocationRates['ripe'];
@@ -43,9 +57,9 @@ const ComparedPriceDIsplay: React.FC<PriceManagerProps> = ({ rates, loc, basePri
 							<label className="absolute cursor-text bg-green-50 px-1 left-2.5 -top-2.5 text-black text-sm transition-all transform origin-left">
 								Real Price
 							</label>
-							<div className="text-xl font-bold text-green-900">${calculateExpectedPrice(loc, 'green')}</div>
+							<div className="text-xl font-bold text-green-900">${calculateCurrentPrice(loc, 'green')}</div>
 							<div className="text-xs text-gray-600 mt-1">
-								+ ${rates[loc].green.greenFreight.toFixed(2)} freight
+								+ ${currentRates[loc].green.greenFreight.toFixed(2)} freight
 							</div>
 						</div>
 					</div>
@@ -72,11 +86,11 @@ const ComparedPriceDIsplay: React.FC<PriceManagerProps> = ({ rates, loc, basePri
 							<label className="absolute cursor-text bg-yellow-50 px-1 left-2.5 -top-2.5 text-black text-sm transition-all transform origin-left">
 								Real Price
 							</label>
-							<div className="text-xl font-bold text-yellow-900">${calculateExpectedPrice(loc, 'ripe')}</div>
+							<div className="text-xl font-bold text-yellow-900">${calculateCurrentPrice(loc, 'ripe')}</div>
 							<div className="text-xs text-gray-600 mt-1">
-								+ ${rates[loc].ripe.greenFreight.toFixed(2)} green freight<br />
-								+ ${rates[loc].ripe.ripening.toFixed(2)} ripening<br />
-								+ ${rates[loc].ripe.ripeFreight.toFixed(2)} ripe freight
+								+ ${currentRates[loc].ripe.greenFreight.toFixed(2)} green freight<br />
+								+ ${currentRates[loc].ripe.ripening.toFixed(2)} ripening<br />
+								+ ${currentRates[loc].ripe.ripeFreight.toFixed(2)} ripe freight
 							</div>
 						</div>
 					</div>

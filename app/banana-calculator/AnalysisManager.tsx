@@ -9,11 +9,48 @@ import ComparedPriceDIsplay from './ComparedPriceDIsplay';
 import { LocationRates, Rates, RateManagerProps } from './Interfaces';
 
 const AnalysisManager: React.FC<RateManagerProps> = ({ rates }) => {
-	const [currentRates, setCurrentRates] = useState<Rates>({ ...rates });
+	const [currentRates, setCurrentRates] = useState<Rates>(() => {
+    let saved = null;
+    if (typeof window !== 'undefined') {
+      saved = localStorage.getItem('bananaRealRates');
+    }
+    return saved ? JSON.parse(saved) : rates;
+  });
   const [basePrice, setBasePrice] = useState<string>('');
 	const inputRef = useRef<HTMLInputElement>(null);
   const [showAnalysisPrices, setShowAnalysisPrices] = useState<boolean>(false);
 
+	const handleCurrentRateChange = (e: React.ChangeEvent<HTMLInputElement>, loc: string, type: 'green' | 'ripe', key: string) => {
+		e.preventDefault();
+		e.stopPropagation();
+		const value = parseFloat(e.target.value) || 0;
+		requestAnimationFrame(() => {
+			setCurrentRates(prev => ({
+				...prev,
+				[loc]: {
+					...prev[loc],
+					[type]: {
+						...prev[loc][type],
+						[key]: value
+					}
+				}
+			}));
+			// setHasUnsavedChanges(true);
+		});
+	};
+	const handleSaveRates = () => {
+		// setRates(editingRates);
+		// setHasUnsavedChanges(false);
+		if (typeof window !== 'undefined') {
+			localStorage.setItem('bananaRealRates', JSON.stringify(currentRates));
+		}
+	};
+
+	useEffect(() => {
+		if (typeof window !== 'undefined') {
+				localStorage.setItem('bananaRealRates', JSON.stringify(currentRates));
+		}
+	}, [currentRates]);
 	return <Card>
 		<CardHeader>
 			<CardTitle className="text-2xl font-bold text-green-800">
@@ -74,7 +111,7 @@ const AnalysisManager: React.FC<RateManagerProps> = ({ rates }) => {
 													step="0.01"
 													min="0"
 													value={value.toString()} // Convert to string for Input
-													// onChange={(e) => handleRateChange(e, loc, type as 'green' | 'ripe', key)}
+													onChange={(e) => handleCurrentRateChange(e, loc, type as 'green' | 'ripe', key)}
 													className="border-green-200"
 													onKeyDown={(e) => {
 														if (e.key === 'Enter') {
@@ -103,7 +140,7 @@ const AnalysisManager: React.FC<RateManagerProps> = ({ rates }) => {
 				<h3 className="font-bold text-lg text-green-800">Analysing For Each Location Based Price Per 15kg</h3>
 				<div className="grid gap-4">
 					{Object.keys(rates).map(loc => (
-						<ComparedPriceDIsplay key={loc} loc={loc} rates={rates} basePrice={basePrice} />
+						<ComparedPriceDIsplay key={loc} loc={loc} rates={rates} basePrice={basePrice} currentRates={currentRates} />
 					))}
 				</div>
 			</>
