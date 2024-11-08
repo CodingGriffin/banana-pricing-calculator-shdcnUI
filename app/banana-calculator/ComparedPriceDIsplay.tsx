@@ -32,7 +32,7 @@ const ComparedPriceDIsplay: React.FC<CurrentPriceManagerProps> = ({ rates, loc, 
     //   return (price + greenRates.greenFreight).toFixed(2);
     // }
 
-		return currentPrices[loc];
+		return currentPrices[loc] ? currentPrices[loc].toFixed(2) : '0.00';
   };
 
   const calculateDeltaPrice = (loc: string, ripeness: 'green' | 'ripe') : string => {
@@ -45,13 +45,13 @@ const ComparedPriceDIsplay: React.FC<CurrentPriceManagerProps> = ({ rates, loc, 
 				const managedRipeRates = managedLocationRates as LocationRates['ripe'];
 				// const realRipeRates = realLocationRates as LocationRates['ripe'];
 				// result = (realRipeRates.greenFreight + realRipeRates.ripening + realRipeRates.ripeFreight - (managedRipeRates.greenFreight + managedRipeRates.ripening + managedRipeRates.ripeFreight)).toFixed(2);
-				result = (currentPrices[loc] - (price + managedRipeRates.greenFreight + managedRipeRates.ripening + managedRipeRates.ripeFreight)).toFixed(2);
+				result = ((currentPrices[loc] ? currentPrices[loc] : 0) - (price + managedRipeRates.greenFreight + managedRipeRates.ripening + managedRipeRates.ripeFreight)).toFixed(2);
 
 			} else {
 				const managedGreenRates = managedLocationRates as LocationRates['green'];
 				// const realGreenRates = realLocationRates as LocationRates['green'];
 				// result = (realGreenRates.greenFreight - managedGreenRates.greenFreight).toFixed(2);
-				result = (currentPrices[loc] - (price + managedGreenRates.greenFreight)).toFixed(2);
+				result = ((currentPrices[loc] ? currentPrices[loc] : 0) - (price + managedGreenRates.greenFreight)).toFixed(2);
 			}
 		if (result.includes('-')) {
 			result = '- $' + result.split('-')[1];

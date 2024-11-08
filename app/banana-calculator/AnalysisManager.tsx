@@ -63,7 +63,7 @@ const AnalysisManager: React.FC<RateManagerProps> = ({ rates, basePrice }) => {
 				// localStorage.setItem('bananaRealRates', JSON.stringify(currentRates));
 				localStorage.setItem('currentPrices', JSON.stringify(currentPrices));
 		}
-	}, [currentRates, currentPrices]);
+	}, [currentRates, currentPrices, rates]);
 	return <Card>
 		<CardHeader>
 			<CardTitle className="text-2xl font-bold text-green-800">
@@ -94,7 +94,7 @@ const AnalysisManager: React.FC<RateManagerProps> = ({ rates, basePrice }) => {
 					Real Price for Each Location
 				</Label>
 				<Card className="border-2 border-green-100">
-					{Object.entries(currentRates).map(([loc, data]) => (
+					{Object.entries(rates).map(([loc, data]) => (
 						<CardContent key={loc} className="pt-6 space-y-4">
 							<div className="flex justify-between items-center pb-2 border-b border-green-100">
 								<h3 className="font-bold capitalize text-lg text-green-800">{loc}</h3>
@@ -104,7 +104,7 @@ const AnalysisManager: React.FC<RateManagerProps> = ({ rates, basePrice }) => {
 								type="number"
 								step="0.01"
 								min="0"
-								value={currentPrices[loc]?.toString()} // Convert to string for Input
+								value={currentPrices[loc] ? currentPrices[loc].toString() : '0'} // Convert to string for Input
 								onChange={(e) => handleCurrentPriceChange(e, loc)}
 								className="border-green-200"
 								onKeyDown={(e) => {
