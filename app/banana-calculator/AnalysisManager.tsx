@@ -104,7 +104,7 @@ const AnalysisManager: React.FC<RateManagerProps> = ({ rates, basePrice }) => {
 								type="number"
 								step="0.01"
 								min="0"
-								value={currentPrices[loc].toString()} // Convert to string for Input
+								value={currentPrices[loc]?.toString()} // Convert to string for Input
 								onChange={(e) => handleCurrentPriceChange(e, loc)}
 								className="border-green-200"
 								onKeyDown={(e) => {
