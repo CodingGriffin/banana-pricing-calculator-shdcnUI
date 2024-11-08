@@ -200,7 +200,7 @@ const BananaPricingCalculator: React.FC = () => {
         ))}
       </div>
       <div className="flex-1 p-6 ml-64">
-        {activeView === 'calculator' ? <CalculatorView /> : (activeView === 'rates' ? <RateManager rates={rates} setRates={setRates} /> : <AnalysisManager rates={rates}  setRates={setRates} />)}
+        {activeView === 'calculator' ? <CalculatorView /> : (activeView === 'rates' ? <RateManager rates={rates} setRates={setRates} basePrice={basePrice}/> : <AnalysisManager rates={rates}  setRates={setRates} basePrice={basePrice} />)}
       </div>
     </div>
   );

@@ -6,18 +6,24 @@ import { Button } from '@/components/ui/button';
 import { EyeOff, Search } from 'lucide-react';
 
 import ComparedPriceDIsplay from './ComparedPriceDIsplay';
-import { LocationRates, Rates, RateManagerProps } from './Interfaces';
+import { LocationRates, Rates, RateManagerProps, CurrentPrices } from './Interfaces';
 
-const AnalysisManager: React.FC<RateManagerProps> = ({ rates }) => {
+const AnalysisManager: React.FC<RateManagerProps> = ({ rates, basePrice }) => {
 	const [currentRates, setCurrentRates] = useState<Rates>(() => {
     let saved = null;
     if (typeof window !== 'undefined') {
       saved = localStorage.getItem('bananaRealRates');
     }
     return saved ? JSON.parse(saved) : rates;
-  });
-  const [basePrice, setBasePrice] = useState<string>('');
-	const inputRef = useRef<HTMLInputElement>(null);
+	});
+	const [currentPrices, setCurrentPrices] = useState<CurrentPrices>(() => {
+    let saved = null;
+    if (typeof window !== 'undefined') {
+      saved = localStorage.getItem('currentPrices');
+    }
+    return saved ? JSON.parse(saved) : [];
+	})
+//   const [basePrice, setBasePrice] = useState<string>('');
   const [showAnalysisPrices, setShowAnalysisPrices] = useState<boolean>(false);
 
 	const handleCurrentRateChange = (e: React.ChangeEvent<HTMLInputElement>, loc: string, type: 'green' | 'ripe', key: string) => {
@@ -39,11 +45,25 @@ const AnalysisManager: React.FC<RateManagerProps> = ({ rates }) => {
 		});
 	};
 
+	const handleCurrentPriceChange = (e: React.ChangeEvent<HTMLInputElement>, loc: string) => {
+		e.preventDefault();
+		e.stopPropagation();
+		const value = parseFloat(e.target.value) || 0;
+		requestAnimationFrame(() => {
+			setCurrentPrices(prev => ({
+				...prev,
+				[loc]: value
+			}));
+			// setHasUnsavedChanges(true);
+		});
+	};
+
 	useEffect(() => {
 		if (typeof window !== 'undefined') {
-				localStorage.setItem('bananaRealRates', JSON.stringify(currentRates));
+				// localStorage.setItem('bananaRealRates', JSON.stringify(currentRates));
+				localStorage.setItem('currentPrices', JSON.stringify(currentPrices));
 		}
-	}, [currentRates]);
+	}, [currentRates, currentPrices]);
 	return <Card>
 		<CardHeader>
 			<CardTitle className="text-2xl font-bold text-green-800">
@@ -52,7 +72,7 @@ const AnalysisManager: React.FC<RateManagerProps> = ({ rates }) => {
 			</CardTitle>
 		</CardHeader>
 		<CardContent className="space-y-6">
-			<div className="space-y-2">
+			{/* <div className="space-y-2">
 				<Label htmlFor="basePrice" className="font-bold text-gray-700">
 					Base Price for Analysis
 				</Label>
@@ -67,20 +87,33 @@ const AnalysisManager: React.FC<RateManagerProps> = ({ rates }) => {
 					placeholder="Enter base price"
 					className="w-full border-green-200 focus:border-green-500 focus:ring-green-500"
 				/>
-			</div>
+			</div> */}
 
 			<div className="space-y-6">
 				<Label htmlFor="basePrice" className="font-bold text-gray-700">
 					Real Price for Each Location
 				</Label>
-				{Object.entries(currentRates).map(([loc, data]) => (
-					<Card key={loc} className="border-2 border-green-100">
-						<CardContent className="pt-6 space-y-4">
+				<Card className="border-2 border-green-100">
+					{Object.entries(currentRates).map(([loc, data]) => (
+						<CardContent key={loc} className="pt-6 space-y-4">
 							<div className="flex justify-between items-center pb-2 border-b border-green-100">
 								<h3 className="font-bold capitalize text-lg text-green-800">{loc}</h3>
 							</div>
-
-							{['green', 'ripe'].map((type) => {
+							<Input
+								// ref={inputRef}
+								type="number"
+								step="0.01"
+								min="0"
+								value={currentPrices[loc].toString()} // Convert to string for Input
+								onChange={(e) => handleCurrentPriceChange(e, loc)}
+								className="border-green-200"
+								onKeyDown={(e) => {
+									if (e.key === 'Enter') {
+										e.preventDefault();
+									}
+								}}
+							/>
+							{/* {['green', 'ripe'].map((type) => {
 								const key: string = type;
 
 								return (
@@ -116,10 +149,10 @@ const AnalysisManager: React.FC<RateManagerProps> = ({ rates }) => {
 										))}
 									</div>
 								</div>
-							)})}
+							)})} */}
 						</CardContent>
-					</Card>
-				))}
+					))}
+				</Card>
 			</div>
 			<Button 
 				onClick={() => setShowAnalysisPrices(!showAnalysisPrices)}
@@ -132,7 +165,7 @@ const AnalysisManager: React.FC<RateManagerProps> = ({ rates }) => {
 				<h3 className="font-bold text-lg text-green-800">Analysing For Each Location Based Price Per 15kg</h3>
 				<div className="grid gap-4">
 					{Object.keys(rates).map(loc => (
-						<ComparedPriceDIsplay key={loc} loc={loc} rates={rates} basePrice={basePrice} currentRates={currentRates} />
+						<ComparedPriceDIsplay key={loc} loc={loc} rates={rates} basePrice={basePrice} currentPrices={currentPrices} />
 					))}
 				</div>
 			</>

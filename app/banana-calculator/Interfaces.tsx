@@ -11,10 +11,14 @@ export interface LocationRates {
 export interface Rates {
 	[key: string]: LocationRates; // Allow indexing with a string
 }
+export interface CurrentPrices {
+	[key: string]: number; // Allow indexing with a string
+}
 
 export interface RateManagerProps {
   rates : any,
-  setRates : (data: any) => void
+  setRates : (data: any) => void,
+  basePrice: any
 }
 
 export interface PriceManagerProps {
@@ -26,5 +30,5 @@ export interface CurrentPriceManagerProps {
 	rates : any,
 	loc : string,
 	basePrice: string,
-	currentRates : any,
+	currentPrices : any,
 }

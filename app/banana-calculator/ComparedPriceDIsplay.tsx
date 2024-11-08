@@ -4,7 +4,7 @@ import { ChevronRight, ChevronLeft, Equal } from 'lucide-react';
 
 import { CurrentPriceManagerProps, LocationRates } from './Interfaces';
 
-const ComparedPriceDIsplay: React.FC<CurrentPriceManagerProps> = ({ rates, loc, basePrice, currentRates }) => {
+const ComparedPriceDIsplay: React.FC<CurrentPriceManagerProps> = ({ rates, loc, basePrice, currentPrices }) => {
   const calculateExpectedPrice = (loc: string, ripeness: 'green' | 'ripe'): string => {
     if (!basePrice) return '0.00';
     const price = parseFloat(basePrice);
@@ -22,31 +22,36 @@ const ComparedPriceDIsplay: React.FC<CurrentPriceManagerProps> = ({ rates, loc, 
   const calculateCurrentPrice = (loc: string, ripeness: 'green' | 'ripe'): string => {
     if (!basePrice) return '0.00';
     const price = parseFloat(basePrice);
-    const locationRates = currentRates[loc][ripeness];
+    // const locationRates = currentRates[loc][ripeness];
 
-    if (ripeness === 'ripe') {
-      const ripeRates = locationRates as LocationRates['ripe'];
-      return (price + ripeRates.greenFreight + ripeRates.ripening + ripeRates.ripeFreight).toFixed(2);
-    } else {
-      const greenRates = locationRates as LocationRates['green'];
-      return (price + greenRates.greenFreight).toFixed(2);
-    }
+    // if (ripeness === 'ripe') {
+    //   const ripeRates = locationRates as LocationRates['ripe'];
+    //   return (price + ripeRates.greenFreight + ripeRates.ripening + ripeRates.ripeFreight).toFixed(2);
+    // } else {
+    //   const greenRates = locationRates as LocationRates['green'];
+    //   return (price + greenRates.greenFreight).toFixed(2);
+    // }
+
+		return currentPrices[loc];
   };
 
   const calculateDeltaPrice = (loc: string, ripeness: 'green' | 'ripe') : string => {
     if (!basePrice) return '0.00';
     const price = parseFloat(basePrice);
     const managedLocationRates = rates[loc][ripeness];
-		const realLocationRates = currentRates[loc][ripeness];
+		// const realLocationRates = currentRates[loc][ripeness];
 		let result = '';
 			if (ripeness === 'ripe') {
 				const managedRipeRates = managedLocationRates as LocationRates['ripe'];
-				const realRipeRates = realLocationRates as LocationRates['ripe'];
-				result = (realRipeRates.greenFreight + realRipeRates.ripening + realRipeRates.ripeFreight - (managedRipeRates.greenFreight + managedRipeRates.ripening + managedRipeRates.ripeFreight)).toFixed(2);
+				// const realRipeRates = realLocationRates as LocationRates['ripe'];
+				// result = (realRipeRates.greenFreight + realRipeRates.ripening + realRipeRates.ripeFreight - (managedRipeRates.greenFreight + managedRipeRates.ripening + managedRipeRates.ripeFreight)).toFixed(2);
+				result = (currentPrices[loc] - (price + managedRipeRates.greenFreight + managedRipeRates.ripening + managedRipeRates.ripeFreight)).toFixed(2);
+
 			} else {
 				const managedGreenRates = managedLocationRates as LocationRates['green'];
-				const realGreenRates = realLocationRates as LocationRates['green'];
-				result = (realGreenRates.greenFreight - managedGreenRates.greenFreight).toFixed(2);
+				// const realGreenRates = realLocationRates as LocationRates['green'];
+				// result = (realGreenRates.greenFreight - managedGreenRates.greenFreight).toFixed(2);
+				result = (currentPrices[loc] - (price + managedGreenRates.greenFreight)).toFixed(2);
 			}
 		if (result.includes('-')) {
 			result = '- $' + result.split('-')[1];
@@ -72,7 +77,7 @@ const ComparedPriceDIsplay: React.FC<CurrentPriceManagerProps> = ({ rates, loc, 
 						</div>
 						<div className='flex flex-col justify-center items-center'>
 							{
-								calculateDeltaPrice(loc, 'green').includes('0.00') ? 
+								calculateDeltaPrice(loc, 'green') == '+ $0.00' ? 
 									<Equal size={50} color='black' /> :
 									calculateDeltaPrice(loc, 'green').includes('-') ? 
 										<>
@@ -90,9 +95,9 @@ const ComparedPriceDIsplay: React.FC<CurrentPriceManagerProps> = ({ rates, loc, 
 								Real Price
 							</label>
 							<div className="text-xl font-bold text-green-900">${calculateCurrentPrice(loc, 'green')}</div>
-							<div className="text-xs text-gray-600 mt-1">
+							{/* <div className="text-xs text-gray-600 mt-1">
 								+ ${currentRates[loc].green.greenFreight.toFixed(2)} freight
-							</div>
+							</div> */}
 						</div>
 					</div>
 				</div>
@@ -112,7 +117,7 @@ const ComparedPriceDIsplay: React.FC<CurrentPriceManagerProps> = ({ rates, loc, 
 						</div>
 						<div className='flex flex-col justify-center items-center'>
 							{
-								calculateDeltaPrice(loc, 'ripe').includes('0.00') ? 
+								calculateDeltaPrice(loc, 'ripe') == '+ $0.00' ? 
 									<Equal size={50} color='black' /> :
 									calculateDeltaPrice(loc, 'ripe').includes('-') ? 
 										<>
@@ -130,11 +135,11 @@ const ComparedPriceDIsplay: React.FC<CurrentPriceManagerProps> = ({ rates, loc, 
 								Real Price
 							</label>
 							<div className="text-xl font-bold text-yellow-900">${calculateCurrentPrice(loc, 'ripe')}</div>
-							<div className="text-xs text-gray-600 mt-1">
+							{/* <div className="text-xs text-gray-600 mt-1">
 								+ ${currentRates[loc].ripe.greenFreight.toFixed(2)} green freight<br />
 								+ ${currentRates[loc].ripe.ripening.toFixed(2)} ripening<br />
 								+ ${currentRates[loc].ripe.ripeFreight.toFixed(2)} ripe freight
-							</div>
+							</div> */}
 						</div>
 					</div>
 				</div>
