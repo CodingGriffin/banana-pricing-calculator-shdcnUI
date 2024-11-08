@@ -6,7 +6,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Button } from '@/components/ui/button';
 import RateManager from './RateManager';
 import AnalysisManager from './AnalysisManager';
-import { Calculator, FileSpreadsheet } from 'lucide-react';
+import { Calculator, FileSpreadsheet, EyeOff } from 'lucide-react';
 
 import CalculatedPriceDisplay from './CalculatedPriceDisplay';
 import { LocationRates, Rates } from './Interfaces';
@@ -153,8 +153,7 @@ const BananaPricingCalculator: React.FC = () => {
             onClick={() => setShowAllPrices(!showAllPrices)}
             className="w-full bg-green-700 hover:bg-green-800 text-white"
           >
-            <Calculator className="mr-2 h-4 w-4" />
-            {showAllPrices ? 'Hide All Prices' : 'Calculate All Prices'}
+            {showAllPrices ? <><EyeOff className="mr-2 h-4 w-4" />Hide All Prices</> : <><Calculator className="mr-2 h-4 w-4" />Calculate All Prices</>}
           </Button>
 
           {showAllPrices && (

@@ -3,7 +3,7 @@ import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { Calculator } from 'lucide-react';
+import { EyeOff, Search } from 'lucide-react';
 
 import ComparedPriceDIsplay from './ComparedPriceDIsplay';
 import { LocationRates, Rates, RateManagerProps } from './Interfaces';
@@ -37,13 +37,6 @@ const AnalysisManager: React.FC<RateManagerProps> = ({ rates }) => {
 			}));
 			// setHasUnsavedChanges(true);
 		});
-	};
-	const handleSaveRates = () => {
-		// setRates(editingRates);
-		// setHasUnsavedChanges(false);
-		if (typeof window !== 'undefined') {
-			localStorage.setItem('bananaRealRates', JSON.stringify(currentRates));
-		}
 	};
 
 	useEffect(() => {
@@ -132,8 +125,7 @@ const AnalysisManager: React.FC<RateManagerProps> = ({ rates }) => {
 				onClick={() => setShowAnalysisPrices(!showAnalysisPrices)}
 				className="w-full bg-green-700 hover:bg-green-800 text-white"
 			>
-				<Calculator className="mr-2 h-4 w-4" />
-				{showAnalysisPrices ? 'Hide Analysis' : 'Analysis All Prices For Each Location'}
+				{showAnalysisPrices ? <><EyeOff className="mr-2 h-4 w-4" />Hide Analysis</> : <><Search className="mr-2 h-4 w-4" />Analyze For Each Location</>}
 			</Button>
 			{showAnalysisPrices &&
 			<>

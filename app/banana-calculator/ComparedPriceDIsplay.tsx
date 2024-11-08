@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
-import { ChevronRight, ChevronLeft } from 'lucide-react';
+import { ChevronRight, ChevronLeft, Equal } from 'lucide-react';
 
 import { CurrentPriceManagerProps, LocationRates } from './Interfaces';
 
@@ -33,6 +33,27 @@ const ComparedPriceDIsplay: React.FC<CurrentPriceManagerProps> = ({ rates, loc, 
     }
   };
 
+  const calculateDeltaPrice = (loc: string, ripeness: 'green' | 'ripe') : string => {
+    if (!basePrice) return '0.00';
+    const price = parseFloat(basePrice);
+    const managedLocationRates = rates[loc][ripeness];
+		const realLocationRates = currentRates[loc][ripeness];
+		let result = '';
+			if (ripeness === 'ripe') {
+				const managedRipeRates = managedLocationRates as LocationRates['ripe'];
+				const realRipeRates = realLocationRates as LocationRates['ripe'];
+				result = (realRipeRates.greenFreight + realRipeRates.ripening + realRipeRates.ripeFreight - (managedRipeRates.greenFreight + managedRipeRates.ripening + managedRipeRates.ripeFreight)).toFixed(2);
+			} else {
+				const managedGreenRates = managedLocationRates as LocationRates['green'];
+				const realGreenRates = realLocationRates as LocationRates['green'];
+				result = (realGreenRates.greenFreight - managedGreenRates.greenFreight).toFixed(2);
+			}
+		if (result.includes('-')) {
+			result = '- $' + result.split('-')[1];
+		} else result = '+ $' + result;
+		return result;
+  }
+
 	return <Card className="border shadow-sm">
 		<CardContent className="pt-4">
 			<h4 className="font-bold capitalize text-lg text-green-800 mb-3">{loc}</h4>
@@ -50,8 +71,19 @@ const ComparedPriceDIsplay: React.FC<CurrentPriceManagerProps> = ({ rates, loc, 
 							</div>
 						</div>
 						<div className='flex flex-col justify-center items-center'>
-								<ChevronRight size={50} color='red' />
-								<div className="text-md text-red">- $0.00</div>
+							{
+								calculateDeltaPrice(loc, 'green').includes('0.00') ? 
+									<Equal size={50} color='black' /> :
+									calculateDeltaPrice(loc, 'green').includes('-') ? 
+										<>
+											<ChevronRight size={50} color='red' />
+											<label className="text-green">{calculateDeltaPrice(loc, 'green')}</label>
+										</> : 
+										<>
+											<ChevronLeft size={50} color='green' />
+											<label className="text-green">{calculateDeltaPrice(loc, 'green')}</label>
+										</>
+							}
 						</div>
 						<div className="relative border border-red-500 rounded-lg p-3">
 							<label className="absolute cursor-text bg-green-50 px-1 left-2.5 -top-2.5 text-black text-sm transition-all transform origin-left">
@@ -79,8 +111,19 @@ const ComparedPriceDIsplay: React.FC<CurrentPriceManagerProps> = ({ rates, loc, 
 							</div>
 						</div>
 						<div className='flex flex-col justify-center items-center'>
-							<ChevronLeft size={50} color='green' />
-							<label className="text-green">+ $0.00</label>
+							{
+								calculateDeltaPrice(loc, 'ripe').includes('0.00') ? 
+									<Equal size={50} color='black' /> :
+									calculateDeltaPrice(loc, 'ripe').includes('-') ? 
+										<>
+											<ChevronRight size={50} color='red' />
+											<label className="text-green">{calculateDeltaPrice(loc, 'ripe')}</label>
+										</> : 
+										<>
+											<ChevronLeft size={50} color='green' />
+											<label className="text-green">{calculateDeltaPrice(loc, 'ripe')}</label>
+										</>
+							}
 						</div>
 						<div className="relative border border-red-500 rounded-lg p-3">
 							<label className="absolute cursor-text bg-yellow-50 px-1 left-2.5 -top-2.5 text-black text-sm transition-all transform origin-left">
